@@ -5,7 +5,7 @@ const path = require('path');
 
 // Токен вашего бота
 const TOKEN = '7622813957:AAFxx96G-rbcitYzcov6JHMYlqWDBBZm0ac';
-const WEB_APP_URL = 'https://hyenasaber-ja9pcv.stormkit.dev/'; // URL вашего приложения на хостинге
+const WEB_APP_URL = 'https://slayerrapid-csiat7--72271.stormkit.dev/'; // URL вашего приложения на хостинге
 
 // Подключение к базе данных MongoDB
 mongoose.connect('mongodb://localhost:27017/telegram', { useNewUrlParser: true, useUnifiedTopology: true });
