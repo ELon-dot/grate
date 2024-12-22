@@ -66,8 +66,10 @@ app.get('/api/user/:telegramId', (req, res) => {
   const user = users[telegramId];
 
   if (user) {
+    console.log(`User found: ${telegramId}, Balance: ${user.grinchCoins}`);
     res.json({ grinchCoins: user.grinchCoins });
   } else {
+    console.log(`User not found: ${telegramId}`);
     res.status(404).json({ error: 'User not found' });
   }
 });
