@@ -73,6 +73,8 @@
   </div>
 
   <script>
+    const BASE_URL = "https://ravenemerald-jwcofp.stormkit.dev/"; // Укажите домен вашего StormKit приложения
+
     // Функция для анимации начисления монет
     function animateCoins(coins) {
       const coinsElement = document.getElementById('coins');
@@ -113,7 +115,7 @@
     const telegramId = urlParams.get('telegramId');
 
     // Получаем бонус с сервера
-    fetch(`/api/user/${telegramId}`)
+    fetch(`${BASE_URL}/api/user/${telegramId}`)
       .then(response => response.json())
       .then(data => {
         if (data.grinchCoins !== undefined) {
@@ -130,7 +132,7 @@
 
     // Событие на кнопку продолжить
     document.getElementById('continueButton').addEventListener('click', () => {
-      window.location.href = "./menu.html"; // Перенаправление на следующую страницу
+      window.location.href = "./menu.html"; // Перенаправление на menu.html
     });
 
     // Создаем снежинки

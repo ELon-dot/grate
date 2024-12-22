@@ -1,16 +1,23 @@
 const express = require('express');
 const TelegramBot = require('node-telegram-bot-api');
 const path = require('path');
+const cors = require('cors'); // Подключаем библиотеку CORS
 
 // Токен вашего бота
 const TOKEN = '7622813957:AAFxx96G-rbcitYzcov6JHMYlqWDBBZm0ac';
-const WEB_APP_URL = 'https://slayerrapid-csiat7--72271.stormkit.dev/'; // URL вашего приложения на хостинге
+const WEB_APP_URL = 'https://ravenemerald-jwcofp.stormkit.dev/'; // URL вашего приложения на хостинге
+// Моделируем базу данных в памяти
 
 // Моделируем базу данных в памяти
 let users = {};
 
 // Создаем экземпляр Telegram бота
 const bot = new TelegramBot(TOKEN, { polling: true });
+
+// Подключаем CORS
+const app = express();
+app.use(cors()); // Разрешаем запросы из браузера
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Команда /start
 bot.onText(/\/start/, async (msg) => {
@@ -55,10 +62,6 @@ bot.onText(/\/start/, async (msg) => {
     });
   }
 });
-
-// Создаем сервер Express
-const app = express();
-app.use(express.static(path.join(__dirname, 'public')));
 
 // Маршрут API для получения информации о пользователе
 app.get('/api/user/:telegramId', (req, res) => {
