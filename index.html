@@ -41,7 +41,6 @@
       z-index: 1;
       animation: snow 10s linear infinite;
     }
-    /* Анимация для плавного падения снежинок */
     @keyframes snow {
       0% {
         transform: translateX(0) translateY(0);
@@ -68,7 +67,7 @@
 </head>
 <body>
   <h1>You've received your $GRINCH bonus!</h1>
-  <div class="coins" id="coins">0 $GRINCH</div>
+  <div class="coins" id="coins">Loading balance...</div>
   <div class="button-container">
     <button id="continueButton" style="padding: 10px 20px; font-size: 1.5em; background-color: #FFD700; color: #282c36; border: none; cursor: pointer; display: none;">Continue</button>
   </div>
@@ -117,8 +116,16 @@
     fetch(`/api/user/${telegramId}`)
       .then(response => response.json())
       .then(data => {
-        // Начисляем бонус
-        animateCoins(data.grinchCoins);
+        if (data.grinchCoins !== undefined) {
+          // Начисляем бонус
+          animateCoins(data.grinchCoins);
+        } else {
+          document.getElementById('coins').innerText = 'Error loading balance';
+        }
+      })
+      .catch(error => {
+        console.error('Error fetching user data:', error);
+        document.getElementById('coins').innerText = 'Failed to load data';
       });
 
     // Событие на кнопку продолжить
