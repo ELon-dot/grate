@@ -5,7 +5,7 @@ const cors = require('cors'); // Подключаем библиотеку CORS
 
 // Токен вашего бота
 const TOKEN = '7622813957:AAFxx96G-rbcitYzcov6JHMYlqWDBBZm0ac';
-const WEB_APP_URL = 'https://ravenemerald-jwcofp.stormkit.dev/'; // URL вашего приложения на хостинге
+const WEB_APP_URL = 'https://slayerrapid-csiat7.stormkit.dev/'; // URL вашего приложения на хостинге
 const WEBHOOK_URL = `${WEB_APP_URL}bot${TOKEN}`; // URL для вебхуков
 
 // Моделируем базу данных в памяти
