@@ -3,11 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Your $GRINCH Balance</title>
+  <title>Your $GRINCH Bonus</title>
   <style>
+    /* Основной стиль */
     body {
-      font-family: Arial, sans-serif;
-      background-color: #282c36;
+      font-family: 'Arial', sans-serif;
+      background-color: #1a1a2e;
       color: white;
       margin: 0;
       padding: 0;
@@ -16,41 +17,159 @@
       align-items: center;
       height: 100vh;
       flex-direction: column;
+      overflow: hidden;
     }
+
+    /* Заголовок */
     h1 {
-      font-size: 3em;
+      font-size: 2.2em;
+      text-align: center;
+      margin: 0 0 15px;
+      animation: fadeIn 1.5s ease-out;
     }
-    .balance {
+
+    /* Монеты */
+    .coins {
       font-size: 2em;
       color: #FFD700;
-      animation: pop 1s ease-in-out infinite alternate;
+      margin-bottom: 30px;
+      text-align: center;
+      animation: fadeIn 1.5s ease-out;
     }
-    @keyframes pop {
-      from { transform: scale(1); }
-      to { transform: scale(1.2); }
+
+    /* Кнопка */
+    .button-container {
+      margin-top: 20px;
     }
-    .premium {
-      color: #FFD700;
+
+    #continueButton {
+      padding: 10px 25px;
+      font-size: 1.1em;
+      background-color: #FFD700;
+      color: #1a1a2e;
+      border: none;
+      border-radius: 20px;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(255, 215, 0, 0.5);
+      display: inline-block; /* Кнопка всегда видима */
+      opacity: 1; /* Убираем лишние ограничения */
+      transform: translateY(0); /* Без скрытых ограничений */
+      transition: all 0.3s ease-out;
+    }
+
+    #continueButton:hover {
+      transform: scale(1.08);
+      box-shadow: 0 6px 15px rgba(255, 215, 0, 0.7);
+    }
+
+    /* Снежинки */
+    .snowflake {
+      position: fixed;
+      top: -10px;
+      color: rgba(255, 255, 255, 0.8);
       font-size: 1.5em;
+      animation: snow linear infinite;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+
+    @keyframes snow {
+      0% {
+        transform: translateX(0) translateY(0);
+      }
+      100% {
+        transform: translateX(calc(var(--endX, 0px))) translateY(100vh);
+      }
+    }
+
+    /* Плавный переход */
+    .page-transition {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: #1a1a2e;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.5s ease;
+        z-index: 9999;
+    }
+
+    .page-transition.active {
+        opacity: 1;
+        pointer-events: all;
     }
   </style>
 </head>
 <body>
-  <h1>Your $GRINCH Balance</h1>
-  <div class="balance" id="balance">Loading...</div>
-  <div class="premium" id="premium"></div>
+  <div class="page-transition" id="pageTransition"></div>
+  <h1>Your $GRINCH Bonus!</h1>
+  <div class="coins" id="coins">Loading...</div>
+  <div class="button-container">
+    <button id="continueButton">Continue</button>
+  </div>
 
   <script>
+    // Анимация начисления GRINCH
+    function animateCoins(targetCoins) {
+      const coinsElement = document.getElementById('coins');
+      let currentCoins = 0;
+
+      // Плавное увеличение чисел
+      const interval = setInterval(() => {
+        currentCoins += 2;
+        coinsElement.innerText = `+${currentCoins} $GRINCH`;
+
+        if (currentCoins >= targetCoins) {
+          clearInterval(interval);
+          coinsElement.innerText = `+${targetCoins} $GRINCH`;
+        }
+      }, 10);
+    }
+
+    // Генерация снежинок
+    function createSnowflakes() {
+      setInterval(() => {
+        const snowflake = document.createElement('div');
+        snowflake.classList.add('snowflake');
+        snowflake.innerHTML = '❄';
+        snowflake.style.left = `${Math.random() * 100}vw`; // Позиция по горизонтали
+        snowflake.style.fontSize = `${Math.random() * 1.5 + 1}em`; // Размер снежинки
+        snowflake.style.animationDuration = `${Math.random() * 3 + 7}s`; // Длительность падения
+        snowflake.style.setProperty('--endX', `${Math.random() * 200 - 100}px`); // Горизонтальный дрейф
+        document.body.appendChild(snowflake);
+
+        setTimeout(() => snowflake.remove(), 10000);
+      }, 200); // Создание снежинки каждые 200 мс
+    }
+
+    // Обработчик кнопки
+    document.getElementById('continueButton').addEventListener('click', () => {
+      const transition = document.getElementById('pageTransition');
+      transition.classList.add('active');
+      
+      setTimeout(() => {
+        window.location.href = `./menu.html?grinchCoins=${grinchCoins}`;
+      }, 500); // Время должно совпадать с transition в CSS
+    });
+
     // Получаем данные из URL
     const urlParams = new URLSearchParams(window.location.search);
-    const grinchCoins = urlParams.get('grinchCoins');
-    const isPremium = urlParams.get('isPremium') === 'true';
+    const grinchCoins = parseInt(urlParams.get('grinchCoins')) || Math.floor(Math.random() * 501) + 400;
 
-    // Отображаем баланс
-    document.getElementById('balance').innerText = `${grinchCoins} $GRINCH`;
-    if (isPremium) {
-      document.getElementById('premium').innerText = 'Premium Bonus Included!';
-    }
+    // Запуск анимации начисления
+    animateCoins(grinchCoins);
+
+    // Запуск снежинок
+    createSnowflakes();
   </script>
 </body>
 </html>

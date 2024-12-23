@@ -1,33 +1,83 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Main Menu</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #282c36;
-      color: white;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      flex-direction: column;
-    }
-    h1 {
-      font-size: 3em;
-      margin-bottom: 20px;
-    }
-    p {
-      font-size: 1.5em;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>$GRINCH Menu</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #1a1a2e;
+            color: white;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .balance {
+            font-size: 2em;
+            color: #FFD700;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        /* Контейнер для кнопок внизу */
+        .button-container {
+            position: fixed;
+            bottom: 30px;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            padding: 0 20px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .menu-button {
+            flex: 1;
+            max-width: 200px;
+            padding: 15px 0;
+            font-size: 1.2em;
+            background-color: #FFD700;
+            color: #1a1a2e;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(255, 215, 0, 0.3);
+        }
+
+        .menu-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(255, 215, 0, 0.5);
+        }
+
+        .menu-button:active {
+            transform: translateY(0);
+        }
+    </style>
 </head>
 <body>
-  <h1>Welcome to the Main Menu</h1>
-  <p>Explore the features and enjoy your experience with $GRINCH!</p>
+    <div class="balance" id="balance">Loading balance...</div>
+    <div class="button-container">
+        <button class="menu-button">Shop</button>
+        <button class="menu-button">Inventory</button>
+        <button class="menu-button">Profile</button>
+    </div>
+
+    <script>
+        // Получаем баланс из URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const grinchCoins = urlParams.get('grinchCoins');
+        
+        if (grinchCoins) {
+            document.getElementById('balance').textContent = `${grinchCoins} $GRINCH`;
+        }
+    </script>
 </body>
 </html>
