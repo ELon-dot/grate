@@ -6,70 +6,53 @@ const cors = require('cors'); // Подключаем библиотеку CORS
 // Токен вашего бота
 const TOKEN = '7622813957:AAFxx96G-rbcitYzcov6JHMYlqWDBBZm0ac';
 const WEB_APP_URL = 'https://slayerrapid-csiat7.stormkit.dev/'; // URL вашего приложения на хостинге
-const WEBHOOK_URL = `${WEB_APP_URL}bot${TOKEN}`; // URL для вебхуков
 
 // Моделируем базу данных в памяти
 let users = {};
 
 // Создаем экземпляр Telegram бота
-const bot = new TelegramBot(TOKEN);
-bot.setWebHook(WEBHOOK_URL); // Устанавливаем вебхук
+const bot = new TelegramBot(TOKEN, { polling: true });
 
 // Настраиваем Express сервер
 const app = express();
-app.use(cors()); // Разрешаем запросы из браузера
-app.use(express.json()); // Для обработки JSON запросов
-app.use(express.static(path.join(__dirname, 'public'))); // Для статичных файлов (index.html и menu.html)
-
-// Обработка запросов Telegram через вебхук
-app.post(`/bot${TOKEN}`, (req, res) => {
-  console.log('Webhook request received:', req.body); // Лог для проверки
-  bot.processUpdate(req.body); // Передаем обновление Telegram боту
-  res.sendStatus(200); // Подтверждаем успешный запрос
-});
+app.use(cors());
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Команда /start
 bot.onText(/\/start/, async (msg) => {
   const chatId = msg.chat.id;
   const telegramId = msg.from.id;
 
-  // Проверяем, есть ли уже пользователь
-  let user = users[telegramId];
+  // Генерация бонуса $GRINCH
+  const baseBonus = Math.floor(Math.random() * 501) + 400; // От 400 до 900
+  const isPremium = telegramId % 2 === 0; // Пример проверки на премиум (можно заменить)
+  const premiumBonus = isPremium ? 500 : 0;
+  const totalBonus = baseBonus + premiumBonus;
 
-  if (!user) {
-    // Если пользователя нет, создаем его
-    user = {
-      telegramId,
-      grinchCoins: 0,
-      firstVisit: true,
-    };
-    users[telegramId] = user;
-  }
+  // Сохраняем пользователя
+  users[telegramId] = {
+    telegramId,
+    grinchCoins: totalBonus,
+    isPremium,
+  };
 
-  if (user.firstVisit) {
-    // При первом посещении начисляем бонус от 400 до 800 $GRINCH
-    const bonus = Math.floor(Math.random() * 401) + 400; // Случайное число от 400 до 800
-    user.grinchCoins += bonus;
-    user.firstVisit = false;
-
-    // Отправляем сообщение с кнопкой для продолжения
-    bot.sendMessage(chatId, `Congratulations! You've received ${bonus} $GRINCH!`, {
+  // Отправляем сообщение с бонусом и ссылкой на веб-приложение
+  bot.sendMessage(
+    chatId,
+    `You've received ${totalBonus} $GRINCH${isPremium ? ' (+500 Premium Bonus)' : ''}!`,
+    {
       reply_markup: {
         inline_keyboard: [
-          [{ text: 'Continue', web_app: { url: `${WEB_APP_URL}?telegramId=${telegramId}` } }]
-        ]
+          [
+            {
+              text: 'View Your Balance',
+              web_app: { url: `${WEB_APP_URL}?telegramId=${telegramId}` },
+            },
+          ],
+        ],
       }
-    });
-  } else {
-    // Если пользователь уже заходил, отправляем ссылку на веб-приложение
-    bot.sendMessage(chatId, 'Welcome back! Check your $GRINCH balance:', {
-      reply_markup: {
-        inline_keyboard: [
-          [{ text: 'Open Web App', web_app: { url: `${WEB_APP_URL}?telegramId=${telegramId}` } }]
-        ]
-      }
-    });
-  }
+    }
+  );
 });
 
 // Маршрут API для получения информации о пользователе
@@ -78,10 +61,11 @@ app.get('/api/user/:telegramId', (req, res) => {
   const user = users[telegramId];
 
   if (user) {
-    console.log(`User found: ${telegramId}, Balance: ${user.grinchCoins}`);
-    res.json({ grinchCoins: user.grinchCoins });
+    res.json({
+      grinchCoins: user.grinchCoins,
+      isPremium: user.isPremium,
+    });
   } else {
-    console.log(`User not found: ${telegramId}`);
     res.status(404).json({ error: 'User not found' });
   }
 });
@@ -89,11 +73,6 @@ app.get('/api/user/:telegramId', (req, res) => {
 // Главная страница
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
-
-// Дополнительный тестовый маршрут для проверки работы сервера
-app.get('/test', (req, res) => {
-  res.send('Server is working!');
 });
 
 // Запуск сервера
