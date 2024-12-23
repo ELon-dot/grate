@@ -6,18 +6,27 @@ const cors = require('cors'); // Подключаем библиотеку CORS
 // Токен вашего бота
 const TOKEN = '7622813957:AAFxx96G-rbcitYzcov6JHMYlqWDBBZm0ac';
 const WEB_APP_URL = 'https://ravenemerald-jwcofp.stormkit.dev/'; // URL вашего приложения на хостинге
-// Моделируем базу данных в памяти
+const WEBHOOK_URL = `${WEB_APP_URL}bot${TOKEN}`; // URL для вебхуков
 
 // Моделируем базу данных в памяти
 let users = {};
 
 // Создаем экземпляр Telegram бота
-const bot = new TelegramBot(TOKEN, { polling: true });
+const bot = new TelegramBot(TOKEN);
+bot.setWebHook(WEBHOOK_URL); // Устанавливаем вебхук
 
-// Подключаем CORS
+// Настраиваем Express сервер
 const app = express();
 app.use(cors()); // Разрешаем запросы из браузера
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.json()); // Для обработки JSON запросов
+app.use(express.static(path.join(__dirname, 'public'))); // Для статичных файлов (index.html и menu.html)
+
+// Обработка запросов Telegram через вебхук
+app.post(`/bot${TOKEN}`, (req, res) => {
+  console.log('Webhook request received:', req.body); // Лог для проверки
+  bot.processUpdate(req.body); // Передаем обновление Telegram боту
+  res.sendStatus(200); // Подтверждаем успешный запрос
+});
 
 // Команда /start
 bot.onText(/\/start/, async (msg) => {
@@ -80,6 +89,11 @@ app.get('/api/user/:telegramId', (req, res) => {
 // Главная страница
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+// Дополнительный тестовый маршрут для проверки работы сервера
+app.get('/test', (req, res) => {
+  res.send('Server is working!');
 });
 
 // Запуск сервера

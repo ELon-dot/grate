@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Welcome to GRINCH</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #282c36;
+      color: white;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+    }
+    h1 {
+      font-size: 2.5em;
+      text-align: center;
+      margin-bottom: 20px;
+      animation: fadeIn 2s ease-out;
+    }
+    .coins {
+      font-size: 2.5em;
+      color: #FFD700;
+      margin-bottom: 40px;
+      text-align: center;
+      transition: transform 0.5s ease;
+      animation: fadeIn 3s ease-out;
+    }
+    .snowflake {
+      position: absolute;
+      top: -10px;
+      color: white;
+      font-size: 1.5em;
+      z-index: 1;
+      animation: snow 10s linear infinite;
+    }
+    @keyframes snow {
+      0% {
+        transform: translateX(0) translateY(0);
+        opacity: 1;
+      }
+      100% {
+        transform: translateX(calc(100vw - 50px)) translateY(100vh);
+        opacity: 0;
+      }
+    }
+    @keyframes fadeIn {
+      0% {
+        opacity: 0;
+      }
+      100% {
+        opacity: 1;
+      }
+    }
+    .button-container {
+      animation: fadeIn 5s ease-out;
+      margin-top: 30px;
+    }
+  </style>
+</head>
+<body>
+  <h1>You've received your $GRINCH bonus!</h1>
+  <div class="coins" id="coins">Loading balance...</div>
+  <div class="button-container">
+    <button id="continueButton" style="padding: 10px 20px; font-size: 1.5em; background-color: #FFD700; color: #282c36; border: none; cursor: pointer; display: none;">Continue</button>
+  </div>
+
+  <script>
+    const BASE_URL = "https://ravenemerald-jwcofp.stormkit.dev/"; // Укажите домен вашего StormKit приложения
+
+    // Функция для анимации начисления монет
+    function animateCoins(coins) {
+      const coinsElement = document.getElementById('coins');
+      coinsElement.innerText = `${coins} $GRINCH`;
+
+      // Анимация появления монет
+      coinsElement.style.transform = 'scale(1.5)';
+      setTimeout(() => {
+        coinsElement.style.transform = 'scale(1)';
+      }, 500);
+
+      // Показать кнопку продолжить
+      setTimeout(() => {
+        document.getElementById('continueButton').style.display = 'inline-block';
+      }, 1000);
+    }
+
+    // Генерация снежинок
+    function createSnowflakes() {
+      setInterval(() => {
+        const snowflake = document.createElement('div');
+        snowflake.classList.add('snowflake');
+        snowflake.innerHTML = '❄';
+        snowflake.style.left = `${Math.random() * 100}vw`; // Позиция по горизонтали
+        snowflake.style.fontSize = `${Math.random() * 2 + 1.5}em`; // Случайный размер снежинки
+        snowflake.style.animationDuration = `${Math.random() * 5 + 5}s`; // Разное время анимации для каждой снежинки
+        document.body.appendChild(snowflake);
+
+        // Удаляем снежинку по завершению анимации
+        setTimeout(() => {
+          snowflake.remove();
+        }, 10000); // Удаление после завершения анимации (10 секунд)
+      }, 200); // Каждые 200 миллисекунд создаем новую снежинку
+    }
+
+    // Получаем ID пользователя из URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const telegramId = urlParams.get('telegramId');
+
+    // Получаем бонус с сервера
+    fetch(`${BASE_URL}/api/user/${telegramId}`)
+      .then(response => response.json())
+      .then(data => {
+        if (data.grinchCoins !== undefined) {
+          // Начисляем бонус
+          animateCoins(data.grinchCoins);
+        } else {
+          document.getElementById('coins').innerText = 'Error loading balance';
+        }
+      })
+      .catch(error => {
+        console.error('Error fetching user data:', error);
+        document.getElementById('coins').innerText = 'Failed to load data';
+      });
+
+    // Событие на кнопку продолжить
+    document.getElementById('continueButton').addEventListener('click', () => {
+      window.location.href = "./menu.html"; // Перенаправление на menu.html
+    });
+
+    // Создаем снежинки
+    createSnowflakes();
+  </script>
+</body>
+</html>
